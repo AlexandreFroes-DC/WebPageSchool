@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Painel Administrativo | Escola de Idiomas</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="css/index.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,'Segoe UI',Roboto;color:#222}
+    .page{display:flex;flex-direction:column;min-height:100vh;background:#f6f6f6;padding:24px}
+    .card{background:#fff;border:1px solid #dcdcdc;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,0.02)}
+    header{display:flex;align-items:center;gap:24px;padding:18px 24px}
+    .logo{font-weight:800;font-size:20px}
+    nav{display:flex;gap:18px;flex:1;justify-content:center}
+    nav button{background:transparent;border:1px solid #dcdcdc;padding:10px 14px;border-radius:20px;font-size:16px;cursor:pointer}
+    nav button[aria-current="true"]{border-color:#999;background:#efefef}
+    .userarea{margin-left:auto;font-size:15px}
+    .userarea button{margin-left:12px;padding:8px 12px;border-radius:20px;border:1px solid #dcdcdc;background:transparent;cursor:pointer}
+    main{flex:1;margin-top:16px;padding:28px;display:flex;flex-direction:column;gap:18px}
+    .content{display:grid;grid-template-columns:2fr;gap:40px}
+    .panel{padding:60px;border-radius:20px;border:1px solid #e8e8e8;background:#fff}
+    footer{margin-top:12px;padding:14px;border-top:1px solid #eee;text-align:center;color:#666}
+    @media(min-width:900px){.content{grid-template-columns:2fr 1fr}}
+    label{display:block;margin-top:12px}
+    input,select,button{padding:8px;margin-top:4px;border-radius:6px;border:1px solid #ccc;width:100%}
+    button.primary{background:#0077cc;color:#fff;border:none;cursor:pointer}
+  </style>
+</head>
+<body>
+<div class="page card">
+  <header>
+    <div class="logo">LOGO ESCOLA</div>
+    <nav>
+      <button data-target="matricular" aria-current="true">Matricular</button>
+      <button data-target="promocoes">Promoções</button>
+      <button data-target="turmas">Turmas</button>
+      <button data-target="pesquisa">Pesquisa CPF</button>
+      <button data-target="relatorios">Relatórios</button>
+    </nav>
+    <div class="userarea">
+      <span>Usuário: <strong>Admin</strong></span>
+      <button id="btn-logout">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="content">
+      <div id="main-panel" class="panel">
+        <h1 id="panel-title">Visão Geral</h1>
+        <div id="panel-content" class="placeholder">Selecione uma opção no menu.</div>
+      </div>
+      <aside class="panel">
+        <h3>Ações Rápidas</h3>
+        <ul>
+          <li><button data-target="matricular">Nova Matrícula</button></li>
+          <li><button data-target="pesquisa">Buscar por CPF</button></li>
+          <li><button data-target="relatorios">Gerar Relatório</button></li>
+        </ul>
+      </aside>
+    </section>
+    <footer>Rodapé — Mensagens rápidas e avisos do sistema.</footer>
+  </main>
+</div>
+
+<script>
+const menuButtons = document.querySelectorAll('nav button, aside button');
+const panelTitle = document.getElementById('panel-title');
+const panelContent = document.getElementById('panel-content');
+
+const views = {
+  matricular: {
+    title: 'Formulário de Matrícula',
+    content: `
+      <div style="max-width:720px;text-align:left">
+        <p>Preencha os dados do aluno:</p>
+        <label>Nome completo<br><input id="nome" placeholder="Nome do aluno"/></label>
+        <label>Data de Nascimento<br><input id="nascimento" placeholder="dd/mm/aaaa"/></label>
+        <label>CPF<br><input id="cpf" placeholder="000.000.000-00"/></label>
+        <label>CEP<br><input id="cep" placeholder="CEP"/></label>
+        <label>Endereço<br><input id="endereco" placeholder="Endereço"/></label>
+        <label>Número<br><input id="numero" placeholder="Número"/></label>
+        <label>Complemento<br><input id="complemento" placeholder="Complemento"/></label>
+        <label>Bairro<br><input id="bairro" placeholder="Bairro"/></label>
+        <label>Cidade<br><input id="cidade" placeholder="Cidade"/></label>
+        <label>Estado<br><input id="estado" placeholder="Estado"/></label>
+        <label>Curso desejado<br>
+          <select id="curso"><option>Inglês</option><option>Espanhol</option><option>Francês</option></select>
+        </label>
+        <br><button id="btn-salvar" class="primary">Finalizar Matrícula</button>
+      </div>`
+  },
+  promocoes:{title:'Promoções',content:'<div class="placeholder">Lista de promoções.</div>'},
+  turmas:{title:'Turmas',content:'<div class="placeholder">Lista de turmas e horários.</div>'},
+  pesquisa:{title:'Pesquisa CPF',content:'<div style="max-width:460px;text-align:left"><label>CPF<br><input id="cpf-pesquisa" placeholder="000.000.000-00"/></label><br><button id="btn-pesquisar">Pesquisar</button></div>'},
+  relatorios:{title:'Relatórios',content:'<div class="placeholder">Geração de relatórios.</div>'}
+};
+
+function attachCEPListener() {
+  const cepInput = document.getElementById('cep');
+  if (cepInput) {
+    cepInput.addEventListener('blur', async () => {
+      const cep = cepInput.value.replace(/\D/g, '');
+      if (cep.length !== 8) { alert('CEP inválido'); return; }
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        if (data.erro) { alert('CEP não encontrado'); return; }
+        document.getElementById('endereco').value = data.logradouro || '';
+        document.getElementById('bairro').value = data.bairro || '';
+        document.getElementById('cidade').value = data.localidade || '';
+        document.getElementById('estado').value = data.uf || '';
+      } catch (e) { alert('Erro ao consultar CEP'); }
+    });
+  }
+}
+
+async function enviarMatricula() {
+  const nome = document.getElementById('nome').value;
+  const nascimento = document.getElementById('nascimento').value;
+  const cpf = document.getElementById('cpf').value;
+  const cep = document.getElementById('cep').value;
+  const endereco = document.getElementById('endereco').value;
+  const numero = document.getElementById('numero').value;
+  const complemento = document.getElementById('complemento').value;
+  const bairro = document.getElementById('bairro').value;
+  const cidade = document.getElementById('cidade').value;
+  const estado = document.getElementById('estado').value;
+  const curso = document.getElementById('curso').value;
+
+  if (!nome || !nascimento || !cpf || !cep || !endereco || !numero || !bairro || !cidade || !estado || !curso) {
+    alert("Por favor, preencha todos os campos obrigatórios.");
+    return;
+  }
+
+  const dados = { nome, nascimento, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, curso };
+  try {
+    const response = await fetch('http://localhost:3000/api/students', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(dados)
+    });
+    if (!response.ok) throw new Error('Erro no servidor');
+    alert(`Matrícula salva com sucesso para ${nome} (${curso}).`);
+  } catch (err) {
+    alert('Falha ao salvar matrícula: ' + err.message);
+  }
+}
+
+function switchView(name, btn) {
+  const view = views[name] || {title:'Visão Geral', content:'<div class="placeholder">Conteúdo não encontrado</div>'};
+  panelTitle.innerHTML = view.title;
+  panelContent.innerHTML = view.content;
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current','false'));
+  if (btn) btn.setAttribute('aria-current','true');
+  attachCEPListener();
+  if (name === 'matricular') {
+    document.getElementById('btn-salvar').addEventListener('click', enviarMatricula);
+  }
+}
+
+menuButtons.forEach(b=>b.addEventListener('click', e=>{
+  const t = e.currentTarget.dataset.target;
+  if (t) switchView(t, document.querySelector(`nav button[data-target="${t}"]`));
+}));
+
+document.getElementById('btn-logout').addEventListener('click',()=>alert('Logout simulado'));
+</script>
+</body>
+</html>
