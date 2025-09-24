@@ -1,0 +1,24 @@
+{
+  "name": "escola-idiomas-admin",
+  "version": "1.0.0",
+  "description": "Painel administrativo para escola de idiomas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Seu Nome",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "deprecated": "^0.0.2",
+    "dotenv": "^17.2.2",
+    "express": "^4.21.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
