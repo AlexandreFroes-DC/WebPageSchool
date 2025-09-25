@@ -1,6 +1,6 @@
 // api/students.js
 const mongoose = require('mongoose');
-const Student = require('models/student.js'); // ajuste o caminho se necessário
+const Student = require('/models/student.js'); 
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -82,4 +82,5 @@ module.exports = async (req, res) => {
       return res.status(405).end(`Método ${method} não permitido`);
   }
 };
+
 
