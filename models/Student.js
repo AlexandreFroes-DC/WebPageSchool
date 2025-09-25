@@ -15,7 +15,4 @@ const studentSchema = new mongoose.Schema({
   dataMatricula: { type: Date, default: Date.now },
 });
 
-// Cria o modelo chamado 'Student'
-const Student = mongoose.model('Student', studentSchema);
-
-module.exports = Student;
+module.exports = mongoose.models.Student || mongoose.model('Student', StudentSchema);
