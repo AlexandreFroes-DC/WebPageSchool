@@ -136,18 +136,28 @@ async function enviarMatricula() {
   }
 
   const dados = { nome, nascimento, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, curso };
-  try {
-    const response = await fetch('api/students', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(dados)
-    });
-    if (!response.ok) throw new Error('Erro no servidor');
-    alert(`Matrícula salva com sucesso para ${nome} (${curso}).`);
-  } catch (err) {
-    alert('Falha ao salvar matrícula: ' + err.message);
+ const API_URL = 'https://web-page-school.vercel.app/api/students';
+
+try {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+  });
+
+  const data = await response.json();
+
+  if (data.error) {
+    alert("Erro ao salvar matrícula: " + data.error);
+  } else {
+    alert("Matrícula salva com sucesso!");
   }
+
+} catch (err) {
+  console.error(err);
+  alert("Não foi possível conectar à API.");
 }
+
 
 function switchView(name, btn) {
   const view = views[name] || {title:'Visão Geral', content:'<div class="placeholder">Conteúdo não encontrado</div>'};
@@ -170,4 +180,5 @@ document.getElementById('btn-logout').addEventListener('click',()=>alert('Logout
 </script>
 </body>
 </html>
+
 
