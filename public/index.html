@@ -137,7 +137,7 @@ async function enviarMatricula() {
 
   const dados = { nome, nascimento, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, curso };
   try {
-    const response = await fetch('http://localhost:3000/api/students', {
+    const response = await fetch('api/students', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(dados)
@@ -170,3 +170,4 @@ document.getElementById('btn-logout').addEventListener('click',()=>alert('Logout
 </script>
 </body>
 </html>
+
