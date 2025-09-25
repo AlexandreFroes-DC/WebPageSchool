@@ -136,49 +136,15 @@ async function enviarMatricula() {
   }
 
   const dados = { nome, nascimento, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, curso };
- const API_URL = 'https://web-page-school.vercel.app/api/students';
+  const API_URL = 'https://web-page-school.vercel.app/api/students';
 
-try {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  });
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (data.error) {
-    alert("Erro ao salvar matrícula: " + data.error);
-  } else {
-    alert("Matrícula salva com sucesso!");
-  }
-
-} catch (err) {
-  console.error(err);
-  alert("Não foi possível conectar à API.");
-}
-
-
-function switchView(name, btn) {
-  const view = views[name] || {title:'Visão Geral', content:'<div class="placeholder">Conteúdo não encontrado</div>'};
-  panelTitle.innerHTML = view.title;
-  panelContent.innerHTML = view.content;
-  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current','false'));
-  if (btn) btn.setAttribute('aria-current','true');
-  attachCEPListener();
-  if (name === 'matricular') {
-    document.getElementById('btn-salvar').addEventListener('click', enviarMatricula);
-  }
-}
-
-menuButtons.forEach(b=>b.addEventListener('click', e=>{
-  const t = e.currentTarget.dataset.target;
-  if (t) switchView(t, document.querySelector(`nav button[data-target="${t}"]`));
-}));
-
-document.getElementById('btn-logout').addEventListener('click',()=>alert('Logout simulado'));
-</script>
-</body>
-</html>
-
-
+    if (data.error) {
